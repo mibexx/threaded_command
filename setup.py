@@ -5,8 +5,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='ThreadedCommand',
-    version='0.1',
+    version='0.2',
     packages=['threadedcommand'],
+    scripts=['tcommand'],
     author="Mike Bertram",
     author_email="contact@mibexx.de",
     description="Runs a console command in multiple threads",

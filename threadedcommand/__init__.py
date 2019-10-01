@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 
-from _thread import start_new_thread, allocate_lock
-import subprocess
+
 import sys
+
+try:
+    from _thread import start_new_thread, allocate_lock
+except ImportError:
+    from thread import start_new_thread, allocate_lock
+
+import subprocess
 import time
 import os
 
@@ -14,6 +20,8 @@ command = ["ls"]
 # Initiate
 lock = allocate_lock()
 devnull = open(os.devnull, 'w')
+active_threads = 0
+spawns = 0
 
 
 def print_process(message):
@@ -28,14 +36,14 @@ def print_process(message):
     sys.stdout.flush()
 
 
-active_threads = 0
 
 
 def worker():
-    global active_threads, lock, command
+    global active_threads, lock, command, spawns
 
     lock.acquire()
     active_threads += 1
+    spawns += 1
     lock.release()
 
     subprocess.run(command, stdout=devnull)
@@ -53,7 +61,7 @@ def run(cmd, threads):
     print("Enter ctrl+c to stop...")
     print("Command: ", command)
     while True:
-        print_process("Status: %s/%s active threads" % (active_threads, max_threads))
+        print_process("Status: %s/%s active threads (%s spawns)" % (active_threads, max_threads, spawns))
         if active_threads < max_threads:
             start_new_thread(worker, ())
         time.sleep(1)
